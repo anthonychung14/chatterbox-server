@@ -11,6 +11,11 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var url = require('url');
+
+var resultsObj = {
+  results: []
+};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -32,32 +37,50 @@ var requestHandler = function(request, response) {
   // The outgoing status.
   var statusCode = 200;
   var body = "";
-  var resultsObj = {
-    results: []
-  };
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
+  var urls = {
+    '/classes/messages': '/classes/messages',
+    '/classes/room1': '/classes/room1',
+    '/?order=-createdAt': '/?order=-createdAt',
+    '/':'/'
+  }
+
+  var inUrl = function(object, url) { 
+    for (var key in object) {
+      if (object[key] === url) {
+        return object[key]
+      }
+    }
+  }
+
+  if (request.method === 'OPTIONS') {
+    console.log('!OPTIONS');
+    response.writeHead(statusCode, headers);
+    response.end();
+  } 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  if (request.url === "/classes/messages") {
+  if (request.url === inUrl(urls, request.url)) {
     if (request.method === "GET") {
       headers['Content-Type'] = "application/json";
       response.writeHead(statusCode, headers);
-      console.log(JSON.stringify(resultsObj))
       response.end(JSON.stringify(resultsObj));
+      
     } else if (request.method === "POST") {
       statusCode = 201
-      headers['Content-Type'] = "application/json";
       response.writeHead(statusCode, headers);
       request.on("data", function(chunk) {
         body += chunk;
       }).on("end", function() {
+        headers['Content-Type'] = "application/json";
         body = JSON.parse(body);
         resultsObj.results.push(body);
+        // results[results.indexOf(body)].objectID = results.indexOf(body)
         console.log(body)
         response.end();
      })
