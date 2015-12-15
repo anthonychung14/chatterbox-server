@@ -72,36 +72,25 @@ var requestHandler = function(request, response) {
       response.end(JSON.stringify(resultsObj));
       
     } else if (request.method === "POST") {
-      statusCode = 201
-      response.writeHead(statusCode, headers);
       request.on("data", function(chunk) {
         body += chunk;
-      }).on("end", function() {
+      });
+      request.on("end", function() {
         headers['Content-Type'] = "application/json";
+        statusCode = 201
         body = JSON.parse(body);
         resultsObj.results.push(body);
-        // results[results.indexOf(body)].objectID = results.indexOf(body)
-        console.log(body)
-        response.end();
-     })
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify(body));
+     });
     }
   } else {
     statusCode = 404
     headers['Content-Type'] = "text/plain";
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
+
     response.writeHead(statusCode, headers);
     response.end()
   }
-
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-  // response.end("Hello, World!");
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -120,4 +109,4 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 // Seconds.
 };
 
-module.exports = requestHandler
+exports.requestHandler = requestHandler;
