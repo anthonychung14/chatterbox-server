@@ -1,4 +1,5 @@
 var express = require('express');
+var fs = require('fs');
 var bodyParser = require('body-parser');
 var app = express();
     // app.use(bodyParser.urlencoded({extended:true}));
@@ -18,30 +19,39 @@ app.use(function(req, res, next) {
   next();
 });
 
-var url = require('url');
-var counter = 1
-var messages = [
-  {
-    username: "Josh",
-    text: "hello there",
-    objectID: counter
-  }
-];
 
+var url = require('url');
+var counter = 1;
+var messages = [
+  // {
+  //   username: "Josh",
+  //   text: "hello there",
+  //   objectID: counter
+  // }
+];
 
 app.use(bodyParser.json());
 
+// fs.readFile("./database.txt", "utf-8",function(err,data){
+//   if (err) throw err;
+//   console.log(data);
+// });
+
 app.get('/', function(req, res) {
-    console.log('get successful');
-    res.send(JSON.stringify(messages));
-    res.end();
-  }); 
+  console.log('get successful');
+  res.send(JSON.stringify(messages));
+  res.end();    
+}); 
 
 app.post('/', function(req, res) {
     req.body.objectID = ++counter;
     messages.push(req.body);
-    console.log(messages);
-    res.status(201).send("it's done");;
+    files = messages;
+    console.log(files);
+    fs.writeFile("./database.txt",JSON.stringify(files),function(err){
+      if (err) {console.log(req.body)};
+    });
+    res.status(201).send("it's done");
     res.end();
   });
 
