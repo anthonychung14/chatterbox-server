@@ -49,7 +49,6 @@ var app = {
         app.fetch();
       },
       error: function (data) {
-        console.log(data)
         console.error('chatterbox: Failed to send message');
       }
     });
@@ -63,18 +62,19 @@ var app = {
       // data: { order: '-createdAt' },
       success: function(data) {
         // Don't bother if we have nothing to work with
-        console.dir(data)
-        if (!data.results || !data.results.length) { return; }       
+        console.log(data)
+        data = JSON.parse(data)
+        if (!data || !data.length) { return; }       
         // Get the last message
-        var mostRecentMessage = data.results[data.results.length-1];
+        var mostRecentMessage = data[data.length-1];
         var displayedRoom = $('.chat span').first().data('roomname');
         // Only bother updating the DOM if we have a new message
         // if (mostRecentMessage.objectId !== app.lastMessageId || app.roomname !== displayedRoom) {
           // Update the UI with the fetched rooms
-          app.populateRooms(data.results);
+          app.populateRooms(data);
 
           // Update the UI with the fetched messages
-          app.populateMessages(data.results, animate);
+          app.populateMessages(data, animate);
 
           // Store the ID of the most recent message
           app.lastMessageId = mostRecentMessage.objectId;
@@ -95,7 +95,7 @@ var app = {
     // Clear existing messages
 
     app.clearMessages();
-    app.stopSpinner();
+    // app.stopSpinner();
     if (Array.isArray(results)) {
       // Add all fetched messages
       results.forEach(app.addMessage);
@@ -225,13 +225,13 @@ var app = {
     evt.preventDefault();
   },
 
-  startSpinner: function(){
-    $('.spinner img').show();
-    $('form input[type=submit]').attr('disabled', "true");
-  },
+  // startSpinner: function(){
+  //   $('.spinner img').show();
+  //   $('form input[type=submit]').attr('disabled', "true");
+  // },
 
-  stopSpinner: function(){
-    $('.spinner img').fadeOut('fast');
-    $('form input[type=submit]').attr('disabled', null);
-  }
+  // stopSpinner: function(){
+  //   $('.spinner img').fadeOut('fast');
+  //   $('form input[type=submit]').attr('disabled', null);
+  // }
 };
